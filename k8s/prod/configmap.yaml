@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stackfood-customers-config
+  labels:
+    app.kubernetes.io/name: stackfood-customers
+    app.kubernetes.io/part-of: stackfood
+data:
+  # Database Configuration
+  ConnectionStrings__DefaultConnection: "Host=stackfood-postgres.database.svc.cluster.local;Port=5432;Database=stackfood_customers;Username=postgres"
+
+  # AWS Cognito Configuration
+  Cognito__Region: "us-east-1"
+  Cognito__UserPoolId: "REPLACE_WITH_USER_POOL_ID"
+  Cognito__ClientId: "REPLACE_WITH_CLIENT_ID"
+  Cognito__DefaultPassword: "Stackfood#123"
+  Cognito__GuestUsername: "convidado"
+  Cognito__GuestPassword: "Convidado123!"
+
+  # AWS SNS Configuration (Optional)
+  AWS__Region: "us-east-1"
+  AWS__SNS__CustomerEventsTopicArn: "REPLACE_WITH_SNS_TOPIC_ARN"
+
+  # Application Settings
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8084"

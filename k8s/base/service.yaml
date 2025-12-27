@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: stackfood-customers
+  labels:
+    app.kubernetes.io/name: stackfood-customers
+    app.kubernetes.io/instance: stackfood-customers
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: stackfood
+    app: stackfood-customers
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8084
+      targetPort: 8084
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: stackfood-customers
+    app: stackfood-customers
