@@ -7,12 +7,12 @@ metadata:
     app.kubernetes.io/part-of: stackfood
 data:
   # Database Configuration
-  ConnectionStrings__DefaultConnection: "Host=stackfood-postgres.database.svc.cluster.local;Port=5432;Database=stackfood_customers;Username=postgres"
+  ConnectionStrings__DefaultConnection: "Host=stackfood-db.c3y2wwk4o98q.us-east-1.rds.amazonaws.com;Port=5432;Database=stackfood_customers;Username=postgres"
 
   # AWS Cognito Configuration
   Cognito__Region: "us-east-1"
-  Cognito__UserPoolId: "REPLACE_WITH_USER_POOL_ID"
-  Cognito__ClientId: "REPLACE_WITH_CLIENT_ID"
+  Cognito__UserPoolId: "us-east-1_yt5PC45XY"
+  Cognito__ClientId: "7jcfv3j1fig7sfgi8c8iii1m3d"
   Cognito__DefaultPassword: "Stackfood#123"
   Cognito__GuestUsername: "convidado"
   Cognito__GuestPassword: "Convidado123!"
