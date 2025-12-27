@@ -1,135 +1,3 @@
-<<<<<<< HEAD
-name: CI/CD - Orders Microservice
-
-on:
-    push:
-        branches: [main, develop]
-    pull_request:
-        branches: [main, develop]
-    workflow_dispatch:
-env:
-    REGISTRY: ghcr.io
-    IMAGE_NAME: ${{ github.repository }}
-
-jobs:
-    build-and-test:
-        name: Build and Test
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            pull-requests: write
-
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # Shallow clones should be disabled for better SonarQube analysis
-
-            - name: Setup .NET
-              uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: "8.0.x"
-
-            - name: Restore dependencies
-              run: dotnet restore
-
-            - name: Build
-              run: dotnet build --configuration Release --no-restore
-
-            - name: Test
-              run: dotnet test --configuration Release --no-build --verbosity normal
-
-    docker-build:
-        name: Docker Build
-        runs-on: ubuntu-latest
-        needs: build-and-test
-
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
-
-            - name: Set Docker tag
-              id: docker_tag
-              run: |
-                  if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-                    echo "tag=main" >> $GITHUB_OUTPUT
-                  elif [[ "${GITHUB_REF##*/}" == "develop" ]]; then
-                    echo "tag=develop" >> $GITHUB_OUTPUT
-                  else
-                    echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
-                  fi
-
-            - name: Build Docker image
-              uses: docker/build-push-action@v5
-              with:
-                  context: .
-                  file: ./Dockerfile
-                  push: false
-                  tags: stackfood-orders-api:${{ steps.docker_tag.outputs.tag }}
-                  cache-from: type=gha
-                  cache-to: type=gha,mode=max
-
-    docker-push:
-        name: Docker Push to GHCR
-        runs-on: ubuntu-latest
-        needs: docker-build
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Install cosign
-              if: github.event_name != 'pull_request'
-              uses: sigstore/cosign-installer@v4.0.0 #v3.5.0
-              with:
-                  cosign-release: "v3.0.2"
-
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
-
-            - name: Log in to GHCR
-              if: github.event_name != 'pull_request'
-              uses: docker/login-action@v3
-              with:
-                  registry: ${{ env.REGISTRY }}
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-
-            # Extract metadata (tags, labels) for Docker
-            # https://github.com/docker/metadata-action
-            - name: Extract Docker metadata
-              id: meta
-              uses: docker/metadata-action@v5.10.0
-              with:
-                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
-            - name: Build and Push Docker image
-              id: build-and-push
-              uses: docker/build-push-action@v5
-              with:
-                  context: .
-                  file: ./Dockerfile
-                  push: true
-                  tags: |
-                      ghcr.io/${{ github.repository_owner }}/stackfood-orders-api:${{ github.ref_name }}
-                  cache-from: type=gha
-                  cache-to: type=gha,mode=max
-
-            # Sign the resulting Docker image digest except on PRs.
-            # This will only write to the public Rekor transparency log when the Docker
-            # repository is public to avoid leaking data.  If you would like to publish
-            # transparency data even for private images, pass --force to cosign below.
-            # https://github.com/sigstore/cosign
-            - name: Sign the published Docker image
-              if: ${{ github.event_name != 'pull_request' }}
-              env:
-                  # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-                  TAGS: ${{ steps.meta.outputs.tags }}
-                  DIGEST: ${{ steps.build-and-push.outputs.digest }}
-              # This step uses the identity token to provision an ephemeral certificate
-              # against the sigstore community Fulcio instance.
-              run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
-=======
 name: CI/CD - Customers Microservice
 
 on:
@@ -256,6 +124,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
+          load: true
           tags: stackfood-customers-api:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -263,9 +132,6 @@ jobs:
       - name: Test Docker image
         run: |
           docker run --rm stackfood-customers-api:${{ github.sha }} dotnet --version
-<<<<<<< HEAD
->>>>>>> cd656e2118c205a5cbaa3fb338212e1edd496a03
-=======
 
   docker-push:
     name: Docker Push to GHCR
@@ -323,4 +189,3 @@ jobs:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
->>>>>>> b374a43554388c01d52c3eaf3c833005a8ea2b05
