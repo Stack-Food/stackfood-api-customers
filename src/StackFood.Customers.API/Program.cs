@@ -63,9 +63,13 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-// Configure the HTTP request pipeline
+app.UsePathBase("/products");
+
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/products/swagger/v1/swagger.json", "StackFood Products API v1");
+});
 
 app.UseCors();
 app.UseAuthorization();
