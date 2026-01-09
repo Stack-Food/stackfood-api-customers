@@ -63,12 +63,12 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-app.UsePathBase("/products");
+app.UsePathBase("/customers");
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/products/swagger/v1/swagger.json", "StackFood Products API v1");
+    c.SwaggerEndpoint("/customers/swagger/v1/swagger.json", "StackFood customers API v1");
 });
 
 app.UseCors();
