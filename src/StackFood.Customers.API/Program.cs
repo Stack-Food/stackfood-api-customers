@@ -1,6 +1,7 @@
 using Amazon.CognitoIdentityProvider;
 using Amazon.SimpleNotificationService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using StackFood.Customers.Application.Interfaces;
 using StackFood.Customers.Application.UseCases;
 using StackFood.Customers.Infrastructure.ExternalServices;
@@ -15,6 +16,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "StackFood Customers API", Version = "v1" });
+    c.AddServer(new OpenApiServer
+    {
+        Url = "https://api.stackfood.com.br/customers",
+    });
 });
 
 // CORS
